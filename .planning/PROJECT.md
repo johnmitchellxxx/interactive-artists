@@ -46,6 +46,10 @@ Potential clients should immediately understand who we are, be impressed by our 
 |----------|-----------|---------|
 | Contact form over booking link | Keeps v1 simple; bespoke work benefits from a conversation first | — Pending |
 | Static site (likely) | Portfolio site with no dynamic data needs; fast and cheap to host | — Pending |
+| Tailwind v4 via @tailwindcss/vite | @astrojs/tailwind is officially deprecated for Tailwind v4; v4 Vite plugin is the current approach per official Astro docs (confirmed 2026-03-11) | Confirmed — using Tailwind v4 |
+| Sanity v3 (not MDX) | Team manages images and structured content (Project, TeamMember, PressItem, ClientLogo) edited by non-developers; MDX is code-first and not appropriate for this content model | Confirmed — using Sanity v3 |
+| Static output (no @astrojs/vercel adapter) | Portfolio site has no dynamic data needs; static builds are faster, cheaper, and score higher on Lighthouse; Vercel auto-detects Astro static output | Confirmed — static output |
+| Embedded Sanity Studio at /studio | One deploy, one repo; simpler for small teams vs. separate Sanity project deploy | Confirmed — embedded Studio |
 
 ---
-*Last updated: 2026-03-11 after initialization*
+*Last updated: 2026-03-12 after Phase 1 Plan 01 scaffold*
