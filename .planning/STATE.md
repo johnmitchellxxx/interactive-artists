@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v3.4
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-02-PLAN.md — Sanity schemas, Studio config, imageUrl utility, GROQ queries committed; STATE.md and ROADMAP.md updated
-last_updated: "2026-03-12T18:22:42.921Z"
-last_activity: 2026-03-12 — Plan 01-02 executed (Sanity schemas, Studio config, imageUrl utility, GROQ queries)
+stopped_at: Completed 01-03-PLAN.md — real Sanity credentials confirmed, npm run build passes; STATE.md and ROADMAP.md updated
+last_updated: "2026-03-12T22:41:14.795Z"
+last_activity: 2026-03-12 — Plan 01-03 completed (real Sanity credentials confirmed, npm run build passes)
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 5
-  completed_plans: 2
-  percent: 40
+  completed_plans: 3
+  percent: 60
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 ## Current Position
 
 Phase: 1 of 3 (Foundation)
-Plan: 2 of 5 in current phase (01-01 and 01-02 complete)
+Plan: 3 of 5 in current phase (01-01, 01-02, and 01-03 complete)
 Status: In progress
-Last activity: 2026-03-12 — Plan 01-02 executed (Sanity schemas, Studio config, imageUrl utility, GROQ queries)
+Last activity: 2026-03-12 — Plan 01-03 completed (real Sanity credentials confirmed, npm run build passes)
 
-Progress: [████░░░░░░] 40%
+Progress: [██████░░░░] 60%
 
 ## Performance Metrics
 
@@ -66,6 +66,8 @@ Recent decisions affecting current work:
 - [Phase 1, Plan 02]: .env.local stub (gitignored) needed for build verification — projectId required at prerender time even with studioRouterHistory:hash
 - [Phase 1, Plan 02]: GROQ queries centralized in src/sanity/queries.ts — never write inline GROQ in page files
 - [Phase 1, Plan 02]: urlFor() via src/sanity/imageUrl.ts — never pass Sanity image objects to Astro's &lt;Image /&gt; component
+- [Phase 01-foundation]: Sanity dataset is 'production' (default free-tier dataset)
+- [Phase 01-foundation]: .env is gitignored and not committed; Vercel env vars set in Plan 05
 
 ### Pending Todos
 
@@ -81,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12
-Stopped at: Completed 01-02-PLAN.md — Sanity schemas, Studio config, imageUrl utility, GROQ queries committed; STATE.md and ROADMAP.md updated
+Last session: 2026-03-12T22:41:14.791Z
+Stopped at: Completed 01-03-PLAN.md — real Sanity credentials confirmed, npm run build passes; STATE.md and ROADMAP.md updated
 Resume file: None

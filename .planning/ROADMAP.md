@@ -32,8 +32,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md — Scaffold Astro project with Tailwind v4 + Sanity integrations; document stack decision in PROJECT.md
-- [ ] 01-02-PLAN.md — Define all 4 Sanity schemas, sanity.config.ts, imageUrl utility, and centralized GROQ queries
-- [ ] 01-03-PLAN.md — (Checkpoint) Create Sanity project on sanity.io and configure local .env credentials
+- [x] 01-02-PLAN.md — Define all 4 Sanity schemas, sanity.config.ts, imageUrl utility, and centralized GROQ queries
+- [x] 01-03-PLAN.md — (Checkpoint) Create Sanity project on sanity.io and configure local .env credentials
 - [ ] 01-04-PLAN.md — Wire placeholder home page to Sanity data fetch; verify CDN image pipeline end-to-end
 - [ ] 01-05-PLAN.md — (Checkpoint) Initialize git, push to GitHub, connect Vercel, set env vars, verify live deploy
 
@@ -68,6 +68,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 2/5 | In Progress|  |
+| 1. Foundation | 3/5 | In Progress|  |
 | 2. Content Pages | 0/TBD | Not started | - |
 | 3. Contact & Launch | 0/TBD | Not started | - |
