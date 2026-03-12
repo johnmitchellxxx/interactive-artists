@@ -1,0 +1,534 @@
+# Phase 1: Foundation - Research
+
+**Researched:** 2026-03-11
+**Domain:** Astro 5 + Sanity v3 + Tailwind v4 + Vercel — project scaffold, CMS, media pipeline, CI/CD
+**Confidence:** HIGH (core stack verified via official docs and multiple sources)
+
+---
+
+## Summary
+
+Phase 1 establishes the entire technical foundation before any UI is built. The stack is Astro 5 (static/hybrid output) connected to Sanity v3 as a headless CMS, styled with Tailwind CSS v4 via the Vite plugin (not the deprecated `@astrojs/tailwind`), deployed to Vercel. Sanity Studio will be embedded directly in the Astro project at `/studio` — this is the officially recommended approach for small teams and eliminates a separate deploy.
+
+The two pre-flagged risks from STATE.md are now resolved: (1) Tailwind v4 works cleanly with Astro 5.2+ via `@tailwindcss/vite` — `@astrojs/tailwind` is officially deprecated and should not be used; (2) the Sanity vs MDX decision should default to Sanity v3 because the team will be managing images, structured content, and multiple content types (Project, TeamMember, PressItem, ClientLogo) — MDX is not appropriate for this kind of structured, image-heavy content edited by non-developers.
+
+Image optimization runs through two layers: Sanity's CDN (`@sanity/image-url` with `.auto('format').quality(75)`) delivers WebP/AVIF at query time, and Astro's built-in `<Image />` and `<Picture />` components handle local or fetched assets. For Sanity-hosted images, `@sanity/image-url` is the right tool — Astro's image component is for local or remote assets, not Sanity CDN URLs.
+
+**Primary recommendation:** Use `npm create astro@latest` with the minimal template, then add Sanity and Tailwind via their respective `astro add` commands. Confirm stack decision in PROJECT.md before any schema or UI work.
+
+---
+
+## Standard Stack
+
+### Core
+
+| Library | Version | Purpose | Why Standard |
+|---------|---------|---------|--------------|
+| astro | 5.x (latest) | Site framework — static/hybrid rendering | Zero-JS by default, ideal for portfolio/marketing |
+| @sanity/astro | latest | Official Sanity integration for Astro | Embeds Studio, provides `sanity:client` virtual module |
+| sanity | 3.x | Headless CMS SDK + Studio | Structured content, image pipeline, free tier |
+| @sanity/client | latest | GROQ query client (bundled via @sanity/astro) | Used directly in `.astro` frontmatter |
+| @sanity/image-url | latest | URL builder for Sanity CDN images | Format conversion, resizing, hotspot/crop support |
+| tailwindcss | 4.x | Utility CSS | v4 is current stable; faster, CSS-first config |
+| @tailwindcss/vite | 4.x | Vite plugin for Tailwind v4 | Replaces deprecated @astrojs/tailwind |
+| @astrojs/react | latest | React adapter (required for Sanity Studio embed) | Studio is a React SPA; site still ships 0 client JS |
+
+### Supporting
+
+| Library | Version | Purpose | When to Use |
+|---------|---------|---------|-------------|
+| astro-portabletext | latest | Render Sanity PortableText (rich text) in Astro | If any schema field uses `array` of blocks |
+| @portabletext/types | latest | TypeScript types for PortableText | Alongside astro-portabletext |
+| @astrojs/vercel | latest | Vercel deployment adapter | Only needed if switching from static to SSR/hybrid |
+
+### Alternatives Considered
+
+| Instead of | Could Use | Tradeoff |
+|------------|-----------|----------|
+| Sanity v3 | MDX files | MDX is code-first, not suitable for non-dev content editors managing images and structured data |
+| Tailwind v4 via Vite plugin | Tailwind v3.4.x + @astrojs/tailwind | v3 still works but @astrojs/tailwind is deprecated; no reason to start new project on v3 |
+| Embedded Sanity Studio | Separate Sanity project | Separate project adds a second deploy; embedded is recommended for small teams |
+| Static output (`output: 'static'`) | SSR via @astrojs/vercel | Portfolio site has no dynamic data needs; static is faster, cheaper, and scores better on Lighthouse |
+
+**Installation (full Phase 1 stack):**
+
+```bash
+# 1. Scaffold Astro project
+npm create astro@latest my-website -- --template minimal
+
+# 2. Add Sanity integration (auto-configures astro.config.mjs)
+npx astro add @sanity/astro @astrojs/react
+
+# 3. Add Tailwind v4 via Vite plugin (auto-configures astro.config.mjs)
+npx astro add tailwind
+
+# 4. Image URL builder for Sanity CDN
+npm install @sanity/image-url
+
+# 5. Optional: rich text rendering (add in Phase 2 if needed)
+npm install astro-portabletext @portabletext/types
+```
+
+---
+
+## Architecture Patterns
+
+### Recommended Project Structure
+
+```
+my-website/
+├── public/                  # Static assets (favicons, etc.)
+├── src/
+│   ├── components/          # Astro/React components
+│   ├── layouts/             # Page layout wrappers
+│   ├── pages/               # File-based routing
+│   │   └── studio/          # Sanity Studio route (auto-generated by @sanity/astro)
+│   ├── sanity/
+│   │   ├── schemaTypes/     # One file per document type
+│   │   │   ├── project.ts
+│   │   │   ├── teamMember.ts
+│   │   │   ├── pressItem.ts
+│   │   │   └── clientLogo.ts
+│   │   └── queries.ts       # Centralized GROQ queries
+│   ├── styles/
+│   │   └── global.css       # Tailwind entry point
+│   └── env.d.ts             # Type references for Astro + Sanity
+├── sanity.config.ts         # Sanity Studio configuration
+├── astro.config.mjs         # Astro + integrations config
+└── .env                     # LOCAL ONLY — never commit
+```
+
+### Pattern 1: Astro + Sanity Configuration
+
+**What:** Connect Astro to Sanity via the official integration, which provides a virtual `sanity:client` module usable in any `.astro` file.
+
+**When to use:** Always — this is the baseline config.
+
+```typescript
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import sanity from '@sanity/astro';
+import react from '@astrojs/react';
+import tailwindcss from '@tailwindcss/vite';
+import { loadEnv } from 'vite';
+
+const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
+  process.env.NODE_ENV,
+  process.cwd(),
+  ''
+);
+
+export default defineConfig({
+  vite: {
+    plugins: [tailwindcss()],
+  },
+  integrations: [
+    sanity({
+      projectId: PUBLIC_SANITY_PROJECT_ID,
+      dataset: PUBLIC_SANITY_DATASET,
+      useCdn: false,          // false for static builds — avoids stale CDN cache
+      apiVersion: '2025-01-28',
+      studioBasePath: '/studio',
+    }),
+    react(),
+  ],
+});
+```
+
+```css
+/* src/styles/global.css */
+@import "tailwindcss";
+```
+
+```typescript
+// src/env.d.ts
+/// <reference types="astro/client" />
+/// <reference types="@sanity/astro/module" />
+```
+
+### Pattern 2: Sanity Schema (TypeScript, defineType + defineField)
+
+**What:** Use `defineType` and `defineField` helpers for all schema files. Provides IDE autocompletion and TypeScript type safety.
+
+**When to use:** Every document type in `src/sanity/schemaTypes/`.
+
+```typescript
+// src/sanity/schemaTypes/project.ts
+// Source: https://www.sanity.io/docs/studio/schema-types
+import { defineField, defineType } from 'sanity';
+
+export const project = defineType({
+  name: 'project',
+  title: 'Project',
+  type: 'document',
+  fields: [
+    defineField({ name: 'title', type: 'string', validation: (Rule) => Rule.required() }),
+    defineField({ name: 'slug', type: 'slug', options: { source: 'title' } }),
+    defineField({ name: 'category', type: 'string', options: { list: ['Installation', 'Public & Outdoor', 'Corporate Events'] } }),
+    defineField({
+      name: 'mainImage',
+      type: 'image',
+      options: { hotspot: true },   // enables focal point cropping
+      fields: [defineField({ name: 'alt', type: 'string' })],
+    }),
+    defineField({ name: 'description', type: 'text' }),
+  ],
+});
+```
+
+```typescript
+// sanity.config.ts
+import { defineConfig } from 'sanity';
+import { structureTool } from 'sanity/structure';
+import { project } from './src/sanity/schemaTypes/project';
+import { teamMember } from './src/sanity/schemaTypes/teamMember';
+import { pressItem } from './src/sanity/schemaTypes/pressItem';
+import { clientLogo } from './src/sanity/schemaTypes/clientLogo';
+
+export default defineConfig({
+  projectId: process.env.PUBLIC_SANITY_PROJECT_ID!,
+  dataset: process.env.PUBLIC_SANITY_DATASET!,
+  plugins: [structureTool()],
+  schema: { types: [project, teamMember, pressItem, clientLogo] },
+});
+```
+
+### Pattern 3: Fetching Data and Rendering Images
+
+**What:** Use `sanityClient` from the virtual module in `.astro` frontmatter. Use `@sanity/image-url` for CDN image URLs with format negotiation.
+
+**When to use:** Any page that pulls Sanity content.
+
+```astro
+---
+// src/pages/index.astro
+// Source: https://docs.astro.build/en/guides/cms/sanity/
+import { sanityClient } from 'sanity:client';
+import imageUrlBuilder from '@sanity/image-url';
+
+const builder = imageUrlBuilder(sanityClient);
+function urlFor(source) {
+  return builder.image(source).auto('format').quality(75);
+}
+
+const projects = await sanityClient.fetch(`*[_type == "project"]{
+  title,
+  slug,
+  mainImage { asset->, hotspot, crop },
+  category
+}`);
+---
+{projects.map((p) => (
+  <img
+    src={urlFor(p.mainImage).width(800).url()}
+    alt={p.mainImage.alt}
+    loading="lazy"
+    decoding="async"
+  />
+))}
+```
+
+### Pattern 4: Environment Variables
+
+**What:** Public variables (safe to expose in client JS) use `PUBLIC_` prefix. Secret variables (API tokens) do not.
+
+```bash
+# .env  (local development — DO NOT commit)
+PUBLIC_SANITY_PROJECT_ID=your-project-id
+PUBLIC_SANITY_DATASET=production
+SANITY_API_READ_TOKEN=your-token   # only needed for draft previews
+```
+
+On Vercel: add these under Project Settings → Environment Variables. Vercel auto-injects them at build time. No adapter needed for static output — just connect repo to Vercel, it auto-detects Astro.
+
+### Anti-Patterns to Avoid
+
+- **Using `@astrojs/tailwind` for new projects:** It is officially deprecated for Tailwind v4. Use `@tailwindcss/vite` instead.
+- **Passing Sanity image objects to Astro's `<Image />` component:** Astro's image component does not understand Sanity's asset references. Use `@sanity/image-url` for Sanity images.
+- **Hardcoding Sanity project ID/dataset in config:** Always use environment variables — the same config must work for preview and production Vercel environments.
+- **Omitting `hotspot: true` from image fields:** Without this, Sanity won't store focal point data, causing poor auto-crops on differently-sized displays.
+- **Omitting `{ source: 'title' }` from slug fields:** Prevents Studio from auto-generating slugs; editors must type them manually.
+- **Committing `.env`:** Add `.env` to `.gitignore` immediately. Sanity project IDs in public repos are a security concern.
+
+---
+
+## Don't Hand-Roll
+
+| Problem | Don't Build | Use Instead | Why |
+|---------|-------------|-------------|-----|
+| Image resizing + format conversion | Custom resize logic | `@sanity/image-url` `.auto('format')` | Handles WebP/AVIF negotiation, hotspot cropping, CDN caching, lazy AVIF encoding |
+| Sanity data fetching | Raw `fetch()` to Sanity API | `sanityClient` from `sanity:client` | Handles CDN, auth tokens, API versioning, TypeScript types |
+| PortableText rendering | Custom block renderer | `astro-portabletext` | PortableText has many block types, marks, custom components — non-trivial to build |
+| Astro + Sanity wiring | Manual Vite config | `npx astro add @sanity/astro @astrojs/react` | CLI handles config mutations, virtual module setup, TypeScript references |
+| Tailwind CSS setup | Manual PostCSS config | `npx astro add tailwind` | CLI writes correct Vite plugin config; manual PostCSS config is the old v3 approach |
+
+**Key insight:** The Sanity image pipeline (CDN + `auto=format`) is the primary media optimization mechanism. Astro's image tools are for local assets — do not mix the two approaches for Sanity-hosted images.
+
+---
+
+## Common Pitfalls
+
+### Pitfall 1: Tailwind v4 CSS Not Loading
+
+**What goes wrong:** Classes are applied in HTML but styles have no effect. Dev server shows no Tailwind output.
+
+**Why it happens:** `global.css` was not imported in the layout component, or the `@import "tailwindcss"` directive is missing from the CSS file, or an old `tailwind.config.js` is present that conflicts with v4's CSS-first config.
+
+**How to avoid:** Use `npx astro add tailwind` to scaffold correctly. Import `global.css` in every layout. Delete any `tailwind.config.js` — v4 uses CSS configuration only.
+
+**Warning signs:** Utility classes render as unstyled text; browser devtools show no Tailwind-generated CSS in the stylesheet.
+
+### Pitfall 2: Sanity Client Not Found at Build Time
+
+**What goes wrong:** Build fails with `Cannot find module 'sanity:client'` or `sanityClient is undefined`.
+
+**Why it happens:** The `@sanity/astro` integration was not added to `astro.config.mjs`, or the env.d.ts type reference is missing.
+
+**How to avoid:** Always run `npx astro add @sanity/astro @astrojs/react` rather than manual installation. Verify `env.d.ts` contains `/// <reference types="@sanity/astro/module" />`.
+
+**Warning signs:** TypeScript shows red underline on `import { sanityClient } from 'sanity:client'`.
+
+### Pitfall 3: Stale Vercel Builds (CDN Cache Hit)
+
+**What goes wrong:** Content updated in Sanity Studio does not appear on the deployed site after a rebuild.
+
+**Why it happens:** `useCdn: true` means Astro fetches from Sanity's CDN at build time, which may serve a cached (stale) version.
+
+**How to avoid:** Set `useCdn: false` in the Sanity integration config for static sites. The CDN should be used for SSR runtime requests, not build-time fetches.
+
+**Warning signs:** Manual content updates in Studio require multiple rebuilds before appearing on the live site.
+
+### Pitfall 4: AVIF Encoding Delay on First Request
+
+**What goes wrong:** First visitor to a new Sanity image with `.auto('format')` gets WebP or JPG instead of AVIF, even if their browser supports AVIF.
+
+**Why it happens:** Sanity's CDN lazily encodes AVIF — the first few requests are served in the next-best format while encoding runs in the background.
+
+**How to avoid:** This is expected behavior documented by Sanity. Warm the cache by loading images once after upload. For the success criterion test in Phase 1, verify format output after the image has been loaded at least once.
+
+**Warning signs:** DevTools network tab shows `image/jpeg` or `image/webp` content-type on a first request for a brand-new upload from a AVIF-capable browser.
+
+### Pitfall 5: Vercel Deploy Fails Without Environment Variables
+
+**What goes wrong:** Vercel build log shows `PUBLIC_SANITY_PROJECT_ID is undefined` and pages render without content or throw runtime errors.
+
+**Why it happens:** Variables added to `.env` locally are not automatically synced to Vercel. They must be added manually in the Vercel project dashboard.
+
+**How to avoid:** Before the first deploy, add `PUBLIC_SANITY_PROJECT_ID` and `PUBLIC_SANITY_DATASET` in Vercel → Project → Settings → Environment Variables. Set scope to Production + Preview.
+
+---
+
+## Code Examples
+
+### Sanity TeamMember Schema
+
+```typescript
+// src/sanity/schemaTypes/teamMember.ts
+import { defineField, defineType } from 'sanity';
+
+export const teamMember = defineType({
+  name: 'teamMember',
+  title: 'Team Member',
+  type: 'document',
+  fields: [
+    defineField({ name: 'name', type: 'string', validation: (Rule) => Rule.required() }),
+    defineField({ name: 'role', type: 'string' }),
+    defineField({
+      name: 'photo',
+      type: 'image',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', type: 'string' })],
+    }),
+    defineField({ name: 'bio', type: 'text' }),
+    defineField({ name: 'order', type: 'number' }),
+  ],
+  orderings: [{ title: 'Display Order', name: 'orderAsc', by: [{ field: 'order', direction: 'asc' }] }],
+});
+```
+
+### Sanity PressItem Schema
+
+```typescript
+// src/sanity/schemaTypes/pressItem.ts
+import { defineField, defineType } from 'sanity';
+
+export const pressItem = defineType({
+  name: 'pressItem',
+  title: 'Press Item',
+  type: 'document',
+  fields: [
+    defineField({ name: 'publication', type: 'string', validation: (Rule) => Rule.required() }),
+    defineField({ name: 'quote', type: 'text' }),
+    defineField({ name: 'url', type: 'url' }),
+    defineField({ name: 'date', type: 'date' }),
+  ],
+});
+```
+
+### Sanity ClientLogo Schema
+
+```typescript
+// src/sanity/schemaTypes/clientLogo.ts
+import { defineField, defineType } from 'sanity';
+
+export const clientLogo = defineType({
+  name: 'clientLogo',
+  title: 'Client Logo',
+  type: 'document',
+  fields: [
+    defineField({ name: 'name', type: 'string', validation: (Rule) => Rule.required() }),
+    defineField({
+      name: 'logo',
+      type: 'image',
+      options: { hotspot: false },
+      fields: [defineField({ name: 'alt', type: 'string' })],
+    }),
+    defineField({ name: 'order', type: 'number' }),
+  ],
+});
+```
+
+### Image URL Builder Utility
+
+```typescript
+// src/sanity/imageUrl.ts
+// Source: https://www.sanity.io/docs/apis-and-sdks/image-urls
+import imageUrlBuilder from '@sanity/image-url';
+import { sanityClient } from 'sanity:client';
+
+const builder = imageUrlBuilder(sanityClient);
+
+export function urlFor(source: unknown) {
+  return builder.image(source);
+}
+
+// Usage:
+// urlFor(image).width(800).auto('format').quality(75).url()
+// Delivers WebP or AVIF depending on browser support and CDN encoding status
+```
+
+### Vercel Static Deploy (No Adapter Needed)
+
+```bash
+# For static output (default), no @astrojs/vercel adapter is required.
+# Connect the repo to Vercel dashboard — it auto-detects Astro and runs:
+#   Build Command:  npm run build
+#   Output Dir:     dist/
+# Just set environment variables in Vercel project settings.
+```
+
+---
+
+## State of the Art
+
+| Old Approach | Current Approach | When Changed | Impact |
+|--------------|------------------|--------------|--------|
+| `@astrojs/tailwind` integration | `@tailwindcss/vite` Vite plugin | Astro 5.2 / Tailwind v4 (Jan 2025) | Remove tailwind.config.js; CSS-first config with `@import "tailwindcss"` |
+| `tailwind.config.js` | CSS variables in `global.css` | Tailwind v4 | No JS config file; theme customization via `@theme` CSS block |
+| Manual Sanity fetch with `@sanity/client` | `sanity:client` virtual module | `@sanity/astro` integration | Simpler imports; config centralized in `astro.config.mjs` |
+| Separate Sanity Studio deploy | Embedded Studio at `/studio` route | `@sanity/astro` v1+ | One deploy, one repo, simpler for small teams |
+
+**Deprecated/outdated:**
+- `@astrojs/tailwind`: Officially deprecated. Do not use for new projects on Tailwind v4.
+- `@astrojs/image`: Replaced by Astro's built-in `<Image />` component (removed in Astro 3.0, long gone).
+- Tailwind `tailwind.config.js`: Not used in Tailwind v4. All config lives in CSS.
+
+---
+
+## Open Questions
+
+1. **Stack decision confirmation (required for Success Criterion 5)**
+   - What we know: Sanity v3 is the right choice for this content model (images, structured types, non-dev editors)
+   - What's unclear: The team may have a preference for MDX or a specific workflow expectation
+   - Recommendation: Confirm with the team before building schemas. Document decision in PROJECT.md before any schema work begins. Default to Sanity v3 if no objection.
+
+2. **Sanity project — new or existing?**
+   - What we know: No Sanity project ID is present anywhere in the codebase
+   - What's unclear: Whether the team already has a Sanity account/project or needs a new one created
+   - Recommendation: Plan should include a task for Sanity project creation via `sanity.io` dashboard (free tier is sufficient). Project ID and dataset name must be available before wiring up the integration.
+
+3. **Vercel project — already connected?**
+   - What we know: No Vercel config or `vercel.json` exists; the project is not a git repo yet
+   - What's unclear: Whether the team has a Vercel account and wants to connect via GitHub or Vercel CLI
+   - Recommendation: Plan should include git init, push to GitHub, and Vercel project creation as explicit tasks — do not assume these are done.
+
+---
+
+## Validation Architecture
+
+nyquist_validation is enabled in `.planning/config.json`.
+
+### Test Framework
+
+| Property | Value |
+|----------|-------|
+| Framework | None detected — Wave 0 must scaffold |
+| Config file | None — see Wave 0 |
+| Quick run command | `npm run build` (build success = structural validation) |
+| Full suite command | `npm run build && npm run preview` |
+
+### Phase Requirements to Test Map
+
+Phase 1 has no v1 user-facing requirement IDs. Validation is against Success Criteria:
+
+| Criterion | Behavior | Test Type | Automated Command | Infrastructure |
+|-----------|----------|-----------|-------------------|----------------|
+| SC-1 | `npm run dev` starts with no errors | smoke | `npm run build` (build = compile check) | ❌ Wave 0: scaffold Astro project |
+| SC-2 | Sanity Studio accessible at /studio with 4 schemas | manual | Visit `localhost:4321/studio` | ❌ Wave 0: Sanity integration setup |
+| SC-3 | Sample project with uploaded image renders with WebP/AVIF | manual | Inspect network tab for image content-type | ❌ Wave 0: schemas + image pipeline |
+| SC-4 | Push to main triggers Vercel preview deploy | integration | Vercel dashboard — check deploy status | ❌ Wave 0: git + Vercel wiring |
+| SC-5 | Stack decision documented in PROJECT.md | manual | Read PROJECT.md Key Decisions table | ❌ Wave 0: decision must precede code |
+
+### Sampling Rate
+
+- **Per task commit:** `npm run build` — catches TypeScript errors and broken imports
+- **Per wave merge:** `npm run build && npm run preview` — verifies local dev and build parity
+- **Phase gate:** All 5 Success Criteria verified manually before marking Phase 1 complete
+
+### Wave 0 Gaps
+
+- [ ] `npm create astro@latest` — Astro scaffold does not yet exist
+- [ ] `npx astro add @sanity/astro @astrojs/react` — Sanity integration not configured
+- [ ] `npx astro add tailwind` — Tailwind not configured
+- [ ] Sanity project created at sanity.io — project ID needed before any code
+- [ ] `.env` file with `PUBLIC_SANITY_PROJECT_ID` and `PUBLIC_SANITY_DATASET`
+- [ ] Git repository initialized and pushed to GitHub
+- [ ] Vercel project connected to GitHub repo
+- [ ] `PUBLIC_SANITY_PROJECT_ID` and `PUBLIC_SANITY_DATASET` added to Vercel environment variables
+
+---
+
+## Sources
+
+### Primary (HIGH confidence)
+
+- [Astro Sanity CMS Guide](https://docs.astro.build/en/guides/cms/sanity/) — official Astro docs, Sanity setup
+- [Astro Tailwind Styling Guide](https://docs.astro.build/en/guides/styling/#tailwind) — Tailwind v4 + Vite plugin, @astrojs/tailwind deprecation confirmed
+- [@astrojs/tailwind deprecation notice](https://docs.astro.build/en/guides/integrations-guide/tailwind/) — "Tailwind CSS now offers a Vite plugin which is the preferred way to use Tailwind 4 in Astro"
+- [Sanity Image Transformations Docs](https://www.sanity.io/docs/apis-and-sdks/image-urls) — `.auto('format')`, WebP/AVIF, hotspot/crop
+- [Sanity Schema Types](https://www.sanity.io/docs/studio/schema-types) — `defineType`/`defineField` pattern
+- [Astro Vercel Deployment](https://docs.astro.build/en/guides/deploy/vercel/) — static deploy, env vars, adapter options
+- [Astro Environment Variables](https://docs.astro.build/en/guides/environment-variables/) — `PUBLIC_` prefix behavior
+
+### Secondary (MEDIUM confidence)
+
+- [Sanity Astro Blog Guide](https://www.sanity.io/docs/developer-guides/sanity-astro-blog) — official Sanity guide, schema patterns, image utility setup
+- [GitHub: sanity-io/sanity-astro](https://github.com/sanity-io/sanity-astro) — installation command, env.d.ts type references
+- [Astro 5.2 Release Blog](https://astro.build/blog/astro-520/) — confirmed Tailwind 4 support as of January 2025
+
+### Tertiary (LOW confidence)
+
+- Community guides (Netlify, dev.to) — corroborate official docs patterns, not used as primary source
+
+---
+
+## Metadata
+
+**Confidence breakdown:**
+- Standard stack: HIGH — all packages verified via official docs and official GitHub repos
+- Architecture: HIGH — patterns taken directly from official Astro + Sanity guides
+- Pitfalls: MEDIUM — mix of official documentation warnings and verified community reports
+- Tailwind v4 deprecation of @astrojs/tailwind: HIGH — confirmed by official Astro docs
+
+**Research date:** 2026-03-11
+**Valid until:** 2026-06-11 (stable ecosystem; Tailwind v4 and Sanity v3 are not in rapid flux)
