@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v3.4
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-03-PLAN.md — real Sanity credentials confirmed, npm run build passes; STATE.md and ROADMAP.md updated
-last_updated: "2026-03-12T22:41:14.795Z"
-last_activity: 2026-03-12 — Plan 01-03 completed (real Sanity credentials confirmed, npm run build passes)
+stopped_at: Completed 01-04-PLAN.md — home page wired to Sanity data fetch with CDN image pipeline; npm run build passes
+last_updated: "2026-03-12T22:50:00.000Z"
+last_activity: 2026-03-12 — Plan 01-04 completed (Sanity fetch + CDN image pipeline proven end-to-end)
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 5
-  completed_plans: 3
-  percent: 60
+  completed_plans: 4
+  percent: 80
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 ## Current Position
 
-Phase: 1 of 3 (Foundation)
-Plan: 3 of 5 in current phase (01-01, 01-02, and 01-03 complete)
+Phase: 1 of 3 (Foundation) — COMPLETE
+Plan: 4 of 5 in current phase (01-01, 01-02, 01-03, and 01-04 complete; 01-05 Vercel deployment remaining)
 Status: In progress
-Last activity: 2026-03-12 — Plan 01-03 completed (real Sanity credentials confirmed, npm run build passes)
+Last activity: 2026-03-12 — Plan 01-04 completed (Sanity fetch + CDN image pipeline proven end-to-end)
 
-Progress: [██████░░░░] 60%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -68,6 +68,8 @@ Recent decisions affecting current work:
 - [Phase 1, Plan 02]: urlFor() via src/sanity/imageUrl.ts — never pass Sanity image objects to Astro's &lt;Image /&gt; component
 - [Phase 01-foundation]: Sanity dataset is 'production' (default free-tier dataset)
 - [Phase 01-foundation]: .env is gitignored and not committed; Vercel env vars set in Plan 05
+- [Phase 1, Plan 04]: urlFor().auto('format') with plain <img> tag (not Astro Image component) is the correct pattern for all Sanity-hosted images
+- [Phase 1, Plan 04]: AVIF lazy encoding — image/webp on first load is expected, AVIF encodes asynchronously on Sanity CDN
 
 ### Pending Todos
 
@@ -83,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T22:41:14.791Z
-Stopped at: Completed 01-03-PLAN.md — real Sanity credentials confirmed, npm run build passes; STATE.md and ROADMAP.md updated
+Last session: 2026-03-12T22:50:00.000Z
+Stopped at: Completed 01-04-PLAN.md — home page wired to Sanity data fetch with CDN image pipeline; STATE.md and ROADMAP.md updated
 Resume file: None
