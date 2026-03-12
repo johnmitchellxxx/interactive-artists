@@ -28,7 +28,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A sample project entry in Sanity with an uploaded image renders on the local site with correct WebP/AVIF output
   4. Pushing to the main branch triggers a Vercel preview deploy that passes without errors
   5. The stack decision (Tailwind v4 vs v3.4.x, MDX vs Sanity) is confirmed and documented in PROJECT.md
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Scaffold Astro project with Tailwind v4 + Sanity integrations; document stack decision in PROJECT.md
+- [ ] 01-02-PLAN.md — Define all 4 Sanity schemas, sanity.config.ts, imageUrl utility, and centralized GROQ queries
+- [ ] 01-03-PLAN.md — (Checkpoint) Create Sanity project on sanity.io and configure local .env credentials
+- [ ] 01-04-PLAN.md — Wire placeholder home page to Sanity data fetch; verify CDN image pipeline end-to-end
+- [ ] 01-05-PLAN.md — (Checkpoint) Initialize git, push to GitHub, connect Vercel, set env vars, verify live deploy
 
 ### Phase 2: Content Pages
 **Goal**: Visitors can browse the team's work, learn who they are, and see social proof — the full read-only experience is live and mobile-responsive
@@ -61,6 +68,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 0/5 | Not started | - |
 | 2. Content Pages | 0/TBD | Not started | - |
 | 3. Contact & Launch | 0/TBD | Not started | - |
