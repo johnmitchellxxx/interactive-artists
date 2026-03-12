@@ -1,8 +1,64 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { sanityClient } from 'sanity:client';
+import { urlFor } from '../sanity/imageUrl';
+import { projectsQuery } from '../sanity/queries';
+
+interface SanityImageAsset {
+  _ref: string;
+}
+interface SanityImage {
+  asset: SanityImageAsset;
+  hotspot?: object;
+  crop?: object;
+  alt?: string;
+}
+interface Project {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  category?: string;
+  description?: string;
+  mainImage?: SanityImage;
+}
+
+const projects = await sanityClient.fetch<Project[]>(projectsQuery);
 ---
-<BaseLayout title="Interactive Artists — Coming Soon">
-  <main class="min-h-screen flex items-center justify-center bg-black text-white">
-    <h1 class="text-4xl font-bold">Interactive Artists</h1>
+<BaseLayout title="Interactive Artists">
+  <main class="min-h-screen bg-black text-white p-8">
+    <h1 class="text-4xl font-bold mb-8">Interactive Artists</h1>
+
+    {projects.length === 0 && (
+      <p class="text-gray-400">
+        No projects yet — add one in Sanity Studio at{' '}
+        <a href="/studio" class="underline">
+          /studio
+        </a>
+      </p>
+    )}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {projects.map((project) => (
+        <article class="bg-gray-900 rounded overflow-hidden">
+          {project.mainImage?.asset && (
+            <img
+              src={urlFor(project.mainImage).width(800).auto('format').quality(75).url()}
+              alt={project.mainImage.alt ?? project.title}
+              width="800"
+              height="533"
+              loading="lazy"
+              decoding="async"
+              class="w-full aspect-video object-cover"
+            />
+          )}
+          <div class="p-4">
+            <h2 class="text-xl font-semibold">{project.title}</h2>
+            {project.category && (
+              <p class="text-sm text-gray-400 mt-1">{project.category}</p>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
   </main>
 </BaseLayout>
