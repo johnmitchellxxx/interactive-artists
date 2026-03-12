@@ -1,9 +1,14 @@
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
+import { schemaTypes } from './src/sanity/schemaTypes/index';
 
 export default defineConfig({
+  name: 'default',
+  title: 'Interactive Artists',
   projectId: process.env.PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.PUBLIC_SANITY_DATASET!,
+  dataset: process.env.PUBLIC_SANITY_DATASET ?? 'production',
   plugins: [structureTool()],
-  schema: { types: [] },
+  schema: {
+    types: schemaTypes,
+  },
 });
