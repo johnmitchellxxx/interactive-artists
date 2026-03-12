@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v3.4
+milestone_name: milestone
+status: executing
+stopped_at: Completed 01-02-PLAN.md — Sanity schemas, Studio config, imageUrl utility, GROQ queries committed; STATE.md and ROADMAP.md updated
+last_updated: "2026-03-12T18:22:42.921Z"
+last_activity: 2026-03-12 — Plan 01-02 executed (Sanity schemas, Studio config, imageUrl utility, GROQ queries)
+progress:
+  total_phases: 3
+  completed_phases: 0
+  total_plans: 5
+  completed_plans: 2
+  percent: 40
+---
+
 # Project State
 
 ## Project Reference
@@ -10,28 +26,28 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 ## Current Position
 
 Phase: 1 of 3 (Foundation)
-Plan: 1 of 5 in current phase (01-01 complete)
+Plan: 2 of 5 in current phase (01-01 and 01-02 complete)
 Status: In progress
-Last activity: 2026-03-12 — Plan 01-01 executed (scaffold + stack decisions)
+Last activity: 2026-03-12 — Plan 01-02 executed (Sanity schemas, Studio config, imageUrl utility, GROQ queries)
 
-Progress: [█░░░░░░░░░] 7%
+Progress: [████░░░░░░] 40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 123 min
+- Total plans completed: 2
+- Average duration: 64 min
 - Total execution time: ~2.1 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. Foundation | 1 | 123 min | 123 min |
+| 1. Foundation | 2 | ~127 min | ~64 min |
 
 **Recent Trend:**
-- Last 5 plans: 123 min
-- Trend: baseline
+- Last 5 plans: 123 min, 4 min
+- Trend: baseline (Plan 01 was complex; Plan 02 was straightforward)
 
 *Updated after each plan completion*
 
@@ -47,6 +63,9 @@ Recent decisions affecting current work:
 - [Phase 1, Plan 01]: studioRouterHistory:hash — @sanity/astro default browser-history router injects prerender:false (triggers NoAdapterInstalled); hash mode uses prerender:true
 - [Phase 1, Plan 01]: Tailwind v4 via @tailwindcss/vite CONFIRMED — no compatibility issues when using Astro 6
 - [Phase 1, Plan 01]: Sanity v3 CONFIRMED — using @sanity/astro v3.3.0 with embedded Studio at /studio
+- [Phase 1, Plan 02]: .env.local stub (gitignored) needed for build verification — projectId required at prerender time even with studioRouterHistory:hash
+- [Phase 1, Plan 02]: GROQ queries centralized in src/sanity/queries.ts — never write inline GROQ in page files
+- [Phase 1, Plan 02]: urlFor() via src/sanity/imageUrl.ts — never pass Sanity image objects to Astro's &lt;Image /&gt; component
 
 ### Pending Todos
 
@@ -63,5 +82,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-12
-Stopped at: Completed 01-01-PLAN.md — scaffold + stack decisions committed; STATE.md and ROADMAP.md updated
+Stopped at: Completed 01-02-PLAN.md — Sanity schemas, Studio config, imageUrl utility, GROQ queries committed; STATE.md and ROADMAP.md updated
 Resume file: None
