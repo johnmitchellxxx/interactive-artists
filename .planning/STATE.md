@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 ## Current Position
 
 Phase: 1 of 3 (Foundation)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-11 — Roadmap created, ready for Phase 1 planning
+Plan: 1 of 5 in current phase (01-01 complete)
+Status: In progress
+Last activity: 2026-03-12 — Plan 01-01 executed (scaffold + stack decisions)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░] 7%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
+- Total plans completed: 1
+- Average duration: 123 min
+- Total execution time: ~2.1 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 1. Foundation | 1 | 123 min | 123 min |
 
 **Recent Trend:**
-- Last 5 plans: -
-- Trend: -
+- Last 5 plans: 123 min
+- Trend: baseline
 
 *Updated after each plan completion*
 
@@ -42,8 +42,11 @@ Progress: [░░░░░░░░░░] 0%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [Phase 1]: Tailwind v4 vs v3.4.x compatibility with `@astrojs/tailwind` must be verified at project start — fallback to v3.4.x if unresolved
-- [Phase 1]: Sanity v3 vs flat MDX files — confirm with team based on their content management expectations before building schemas
+- [Phase 1, Plan 01]: Astro 6.0.4 (not 5) — @tailwindcss/vite@4.2.1 requires Vite 7; Astro 5 requires Vite 6; upgraded to Astro 6 which natively requires Vite 7
+- [Phase 1, Plan 01]: CI=true in build script — Vite 7 interactive progress spinner deadlocks in non-TTY environments; CI=true disables spinner
+- [Phase 1, Plan 01]: studioRouterHistory:hash — @sanity/astro default browser-history router injects prerender:false (triggers NoAdapterInstalled); hash mode uses prerender:true
+- [Phase 1, Plan 01]: Tailwind v4 via @tailwindcss/vite CONFIRMED — no compatibility issues when using Astro 6
+- [Phase 1, Plan 01]: Sanity v3 CONFIRMED — using @sanity/astro v3.3.0 with embedded Studio at /studio
 
 ### Pending Todos
 
@@ -51,11 +54,14 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 1]: Tailwind v4 + Astro integration compatibility unverified — research flag from SUMMARY.md; resolve before committing to v4
 - [Phase 3]: Resend free tier limits and spam protection approach (honeypot vs Cloudflare Turnstile) need verification before Phase 3 planning
+
+### Resolved
+
+- [Phase 1] RESOLVED: Tailwind v4 + Astro integration compatibility — confirmed working with Astro 6 + @tailwindcss/vite@4.2.1 (Vite 7)
 
 ## Session Continuity
 
-Last session: 2026-03-11
-Stopped at: Roadmap created — Phase 1 ready to plan
+Last session: 2026-03-12
+Stopped at: Completed 01-01-PLAN.md — scaffold + stack decisions committed; STATE.md and ROADMAP.md updated
 Resume file: None
