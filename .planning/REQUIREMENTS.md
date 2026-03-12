@@ -56,15 +56,15 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GALL-01 | Phase 2 | Pending |
-| GALL-02 | Phase 2 | Pending |
-| TEAM-01 | Phase 2 | Pending |
-| TRST-01 | Phase 2 | Pending |
-| TRST-02 | Phase 2 | Pending |
-| CONT-01 | Phase 3 | Pending |
-| CONT-02 | Phase 3 | Pending |
-| CONT-03 | Phase 3 | Pending |
-| CONT-04 | Phase 3 | Pending |
+| GALL-01 | Phase 2: Content Pages | Pending |
+| GALL-02 | Phase 2: Content Pages | Pending |
+| TEAM-01 | Phase 2: Content Pages | Pending |
+| TRST-01 | Phase 2: Content Pages | Pending |
+| TRST-02 | Phase 2: Content Pages | Pending |
+| CONT-01 | Phase 3: Contact & Launch | Pending |
+| CONT-02 | Phase 3: Contact & Launch | Pending |
+| CONT-03 | Phase 3: Contact & Launch | Pending |
+| CONT-04 | Phase 3: Contact & Launch | Pending |
 
 **Coverage:**
 - v1 requirements: 9 total
@@ -73,4 +73,4 @@
 
 ---
 *Requirements defined: 2026-03-11*
-*Last updated: 2026-03-11 after initial definition*
+*Last updated: 2026-03-11 after roadmap creation*
