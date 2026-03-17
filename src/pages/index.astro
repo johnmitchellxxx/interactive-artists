@@ -24,7 +24,7 @@ interface Project {
 
 const projects = await sanityClient.fetch<Project[]>(projectsQuery);
 ---
-<BaseLayout title="Interactive Artists" currentPath="/">
+<BaseLayout title="Pantheon Interactive" currentPath="/">
   <main class="min-h-screen pt-24 pb-16 px-8">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/10">
       {projects.map((project) => (
