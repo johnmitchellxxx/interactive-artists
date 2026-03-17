@@ -1,0 +1,128 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { sanityClient } from 'sanity:client';
+import { urlFor } from '../sanity/imageUrl';
+import { teamQuery, logosQuery, pressQuery } from '../sanity/queries';
+
+interface SanityImageAsset { _ref: string; }
+interface SanityImage { asset: SanityImageAsset; hotspot?: object; crop?: object; alt?: string; }
+
+interface TeamMember {
+  _id: string;
+  name: string;
+  role?: string;
+  bio?: string;
+  photo?: SanityImage;
+}
+interface ClientLogo {
+  _id: string;
+  name: string;
+  logo?: SanityImage;
+}
+interface PressItem {
+  _id: string;
+  publication: string;
+  quote?: string;
+  url?: string;
+  date?: string;
+}
+
+const [team, logos, press] = await Promise.all([
+  sanityClient.fetch<TeamMember[]>(teamQuery),
+  sanityClient.fetch<ClientLogo[]>(logosQuery),
+  sanityClient.fetch<PressItem[]>(pressQuery),
+]);
+---
+<BaseLayout title="About — Interactive Artists" currentPath="/about">
+  <main class="min-h-screen pt-32 pb-20 px-8">
+    <!-- About intro -->
+    <div class="max-w-2xl mb-24">
+      <p class="text-white/40 text-xs tracking-[0.3em] uppercase mb-6">About</p>
+      <h1 class="text-4xl md:text-5xl font-light leading-tight">
+        We create immersive experiences that connect people, brands, and ideas.
+      </h1>
+    </div>
+
+    <!-- Team -->
+    {team.length > 0 && (
+      <section class="mb-24">
+        <p class="text-white/40 text-xs tracking-[0.3em] uppercase mb-12">Team</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
+          {team.map((member) => (
+            <div>
+              {member.photo?.asset && (
+                <img
+                  src={urlFor(member.photo).width(600).height(700).auto('format').quality(80).url()}
+                  alt={member.photo.alt ?? member.name}
+                  width="600"
+                  height="700"
+                  loading="lazy"
+                  decoding="async"
+                  class="w-full aspect-[4/5] object-cover mb-5 grayscale hover:grayscale-0 transition-all duration-500"
+                />
+              )}
+              <h3 class="text-lg font-medium">{member.name}</h3>
+              {member.role && <p class="text-white/40 text-sm tracking-widest uppercase mt-1">{member.role}</p>}
+              {member.bio && <p class="text-white/60 text-sm leading-relaxed mt-3">{member.bio}</p>}
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Press -->
+    {press.length > 0 && (
+      <section class="mb-24 max-w-3xl">
+        <p class="text-white/40 text-xs tracking-[0.3em] uppercase mb-12">Press</p>
+        <div class="space-y-10">
+          {press.map((item) => (
+            <div class="border-t border-white/10 pt-8">
+              {item.quote && (
+                <blockquote class="text-xl font-light leading-relaxed mb-4">
+                  &ldquo;{item.quote}&rdquo;
+                </blockquote>
+              )}
+              <div class="flex items-center gap-4">
+                {item.url ? (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-white/40 text-xs tracking-[0.2em] uppercase hover:text-white transition-colors"
+                  >
+                    {item.publication} ↗
+                  </a>
+                ) : (
+                  <span class="text-white/40 text-xs tracking-[0.2em] uppercase">{item.publication}</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Client Logos -->
+    {logos.length > 0 && (
+      <section>
+        <p class="text-white/40 text-xs tracking-[0.3em] uppercase mb-12">Clients</p>
+        <div class="flex flex-wrap gap-10 items-center">
+          {logos.map((client) => (
+            client.logo?.asset ? (
+              <img
+                src={urlFor(client.logo).height(60).auto('format').quality(80).url()}
+                alt={client.name}
+                height="60"
+                loading="lazy"
+                decoding="async"
+                class="h-10 object-contain opacity-40 hover:opacity-100 transition-opacity duration-300 invert"
+              />
+            ) : (
+              <span class="text-white/30 text-sm tracking-widest uppercase">{client.name}</span>
+            )
+          ))}
+        </div>
+      </section>
+    )}
+  </main>
+</BaseLayout>

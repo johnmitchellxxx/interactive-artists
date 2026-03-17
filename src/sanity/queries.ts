@@ -33,3 +33,14 @@ export const logosQuery = `*[_type == "clientLogo"] | order(order asc) {
   name,
   logo { asset->, alt }
 }`;
+
+export const projectBySlugQuery = `*[_type == "project" && slug.current == $slug][0] {
+  _id,
+  title,
+  slug,
+  category,
+  description,
+  videoUrl,
+  mainImage { asset->, hotspot, crop, alt },
+  gallery[] { asset->, hotspot, crop, alt }
+}`;

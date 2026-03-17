@@ -1,0 +1,118 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { sanityClient } from 'sanity:client';
+import { urlFor } from '../../sanity/imageUrl';
+import { projectBySlugQuery, projectsQuery } from '../../sanity/queries';
+
+interface SanityImageAsset {
+  _ref: string;
+}
+interface SanityImage {
+  asset: SanityImageAsset;
+  hotspot?: object;
+  crop?: object;
+  alt?: string;
+}
+interface Project {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  category?: string;
+  description?: string;
+  videoUrl?: string;
+  mainImage?: SanityImage;
+  gallery?: SanityImage[];
+}
+
+export async function getStaticPaths() {
+  const projects = await sanityClient.fetch<Project[]>(projectsQuery);
+  return projects.map((project) => ({
+    params: { slug: project.slug.current },
+  }));
+}
+
+const { slug } = Astro.params;
+const project = await sanityClient.fetch<Project>(projectBySlugQuery, { slug });
+
+if (!project) {
+  return Astro.redirect('/');
+}
+---
+<BaseLayout title={`${project.title} — Interactive Artists`} currentPath="/projects">
+  <main class="min-h-screen">
+    <!-- Hero -->
+    {project.mainImage?.asset && (
+      <div class="w-full h-screen relative">
+        <img
+          src={urlFor(project.mainImage).width(1920).auto('format').quality(85).url()}
+          alt={project.mainImage.alt ?? project.title}
+          width="1920"
+          height="1080"
+          class="w-full h-full object-cover"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        <div class="absolute bottom-0 left-0 p-12">
+          <p class="text-white/50 text-xs tracking-[0.3em] uppercase mb-3">{project.category}</p>
+          <h1 class="text-5xl md:text-7xl font-light tracking-tight">{project.title}</h1>
+        </div>
+      </div>
+    )}
+
+    <!-- Content -->
+    <div class="max-w-3xl mx-auto px-8 py-20">
+      {!project.mainImage?.asset && (
+        <div class="pt-32 mb-12">
+          <p class="text-white/50 text-xs tracking-[0.3em] uppercase mb-3">{project.category}</p>
+          <h1 class="text-5xl font-light">{project.title}</h1>
+        </div>
+      )}
+
+      {project.description && (
+        <p class="text-white/70 text-lg leading-relaxed">{project.description}</p>
+      )}
+    </div>
+
+    <!-- Video -->
+    {project.videoUrl && (
+      <div class="max-w-5xl mx-auto px-8 pb-20">
+        <div class="aspect-video w-full">
+          <iframe
+            src={project.videoUrl}
+            class="w-full h-full"
+            allowfullscreen
+            loading="lazy"
+          />
+        </div>
+      </div>
+    )}
+
+    <!-- Gallery -->
+    {project.gallery && project.gallery.length > 0 && (
+      <div class="px-8 pb-20 grid grid-cols-1 md:grid-cols-2 gap-px bg-white/10">
+        {project.gallery.map((image) => (
+          <div class="bg-black">
+            <img
+              src={urlFor(image).width(1200).auto('format').quality(80).url()}
+              alt={image.alt ?? project.title}
+              width="1200"
+              height="800"
+              loading="lazy"
+              decoding="async"
+              class="w-full aspect-[3/2] object-cover"
+            />
+          </div>
+        ))}
+      </div>
+    )}
+
+    <!-- Back link -->
+    <div class="px-8 pb-20">
+      <a
+        href="/"
+        class="text-white/40 text-xs tracking-[0.3em] uppercase hover:text-white transition-colors"
+      >
+        ← Back to Work
+      </a>
+    </div>
+  </main>
+</BaseLayout>

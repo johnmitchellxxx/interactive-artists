@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
-const { title = 'Interactive Artists' } = Astro.props;
+import Nav from '../components/Nav.astro';
+const { title = 'Interactive Artists', currentPath = '/' } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
@@ -9,7 +10,8 @@ const { title = 'Interactive Artists' } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
   </head>
-  <body>
+  <body class="bg-black text-white">
+    <Nav currentPath={currentPath} />
     <slot />
   </body>
 </html>

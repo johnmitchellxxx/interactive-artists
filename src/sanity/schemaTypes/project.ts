@@ -44,6 +44,30 @@ export const project = defineType({
       type: 'text',
     }),
     defineField({
+      name: 'videoUrl',
+      title: 'Video URL',
+      type: 'url',
+      description: 'Optional YouTube or Vimeo embed URL',
+    }),
+    defineField({
+      name: 'gallery',
+      title: 'Gallery',
+      type: 'array',
+      of: [
+        {
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            defineField({
+              name: 'alt',
+              type: 'string',
+              title: 'Alt text',
+            }),
+          ],
+        },
+      ],
+    }),
+    defineField({
       name: 'order',
       type: 'number',
       title: 'Display order',
