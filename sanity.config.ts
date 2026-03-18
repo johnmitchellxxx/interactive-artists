@@ -4,7 +4,7 @@ import { schemaTypes } from './src/sanity/schemaTypes/index';
 
 export default defineConfig({
   name: 'default',
-  title: 'Interactive Artists',
+  title: 'Pantheon Interactive',
   projectId: process.env.PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.PUBLIC_SANITY_DATASET ?? 'production',
   plugins: [structureTool()],
