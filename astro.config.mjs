@@ -5,8 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 import { loadEnv } from 'vite';
 
 const env = loadEnv(process.env.NODE_ENV, process.cwd(), '');
-const PUBLIC_SANITY_PROJECT_ID = env.PUBLIC_SANITY_PROJECT_ID || process.env.PUBLIC_SANITY_PROJECT_ID;
-const PUBLIC_SANITY_DATASET = env.PUBLIC_SANITY_DATASET || process.env.PUBLIC_SANITY_DATASET;
+const PUBLIC_SANITY_PROJECT_ID = env.PUBLIC_SANITY_PROJECT_ID || process.env.PUBLIC_SANITY_PROJECT_ID || 'wrigijsj';
+const PUBLIC_SANITY_DATASET = env.PUBLIC_SANITY_DATASET || process.env.PUBLIC_SANITY_DATASET || 'production';
 
 export default defineConfig({
   output: 'static',
