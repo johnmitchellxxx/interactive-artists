@@ -1,8 +1,8 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { sanityClient } from 'sanity:client';
-import { urlFor } from '../../sanity/imageUrl';
-import { projectBySlugQuery, projectsQuery } from '../../sanity/queries';
+import { urlFor } from '../../../sanity/imageUrl';
+import { projectBySlugQuery, projectsQuery } from '../../../sanity/queries';
 
 interface SanityImageAsset {
   _ref: string;
@@ -35,10 +35,10 @@ const { slug } = Astro.params;
 const project = await sanityClient.fetch<Project>(projectBySlugQuery, { slug });
 
 if (!project) {
-  return Astro.redirect('/');
+  return Astro.redirect('/work');
 }
 ---
-<BaseLayout title={`${project.title} — Pantheon Interactive`} currentPath="/projects">
+<BaseLayout title={`${project.title} — Pantheon Interactive`} currentPath="/work">
   <main class="min-h-screen">
     <!-- Hero -->
     {project.mainImage?.asset && (
@@ -108,7 +108,7 @@ if (!project) {
     <!-- Back link -->
     <div class="px-8 pb-20">
       <a
-        href="/"
+        href="/work"
         class="text-white/40 text-xs tracking-[0.3em] uppercase hover:text-white transition-colors"
       >
         ← Back to Work

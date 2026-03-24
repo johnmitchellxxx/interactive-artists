@@ -9,16 +9,16 @@ const { currentPath = '/' } = Astro.props;
     <ul class="flex gap-10">
       <li>
         <a
-          href="/"
-          class={`text-white text-sm tracking-[0.15em] uppercase transition-opacity ${currentPath === '/' ? 'opacity-100' : 'opacity-50 hover:opacity-100'}`}
+          href="/work"
+          class={`text-white text-sm tracking-[0.15em] uppercase transition-opacity ${currentPath === '/work' ? 'opacity-100' : 'opacity-50 hover:opacity-100'}`}
         >
           Work
         </a>
       </li>
       <li>
         <a
-          href="/about"
-          class={`text-white text-sm tracking-[0.15em] uppercase transition-opacity ${currentPath === '/about' ? 'opacity-100' : 'opacity-50 hover:opacity-100'}`}
+          href="/work/about"
+          class={`text-white text-sm tracking-[0.15em] uppercase transition-opacity ${currentPath === '/work/about' ? 'opacity-100' : 'opacity-50 hover:opacity-100'}`}
         >
           About
         </a>

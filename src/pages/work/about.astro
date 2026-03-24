@@ -1,8 +1,8 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import { sanityClient } from 'sanity:client';
-import { urlFor } from '../sanity/imageUrl';
-import { teamQuery, logosQuery, pressQuery } from '../sanity/queries';
+import { urlFor } from '../../sanity/imageUrl';
+import { teamQuery, logosQuery, pressQuery } from '../../sanity/queries';
 
 interface SanityImageAsset { _ref: string; }
 interface SanityImage { asset: SanityImageAsset; hotspot?: object; crop?: object; alt?: string; }
@@ -33,7 +33,7 @@ const [team, logos, press] = await Promise.all([
   sanityClient.fetch<PressItem[]>(pressQuery),
 ]);
 ---
-<BaseLayout title="About — Pantheon Interactive" currentPath="/about">
+<BaseLayout title="About — Pantheon Interactive" currentPath="/work/about">
   <main class="min-h-screen pt-32 pb-20 px-8">
     <!-- About intro -->
     <div class="max-w-2xl mb-24">
